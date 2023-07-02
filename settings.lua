@@ -10,21 +10,21 @@ priv_roles.data.roles["player"] = {       interact = true,
                                           home = true}
 
 priv_roles.data.roles["trusted"] = {		lava = true,
-         											areas_high_limit = true}
+											areas_high_limit = true}
 
 priv_roles.data.roles["moderator"] = {		kick = true,
-         											ban = true,
-                                          basic_privs = true,
-                                          fly = true,
-         											jail = true,
-         											bring = true,
-         											teleport = true,
-         											fast = true,
-         											lava = true}
+											ban = true,
+											basic_privs = true,
+											fly = true,
+											jail = true,
+											bring = true,
+											teleport = true,
+											fast = true,
+											lava = true}
 
 priv_roles.data.roles["admin"] = {			_all = true,
-         											server = false,
-         											privs = false}
+											server = false,
+											privs = false}
 
 priv_roles.data.roles["owner"] = {			_all = true}
 
@@ -33,11 +33,11 @@ priv_roles.data.roles["owner"] = {			_all = true}
 --
 
 priv_roles.data.roles["builder"] = {		fast = true,
-            										fly = true,
-            									   creative = true,
-            										noclip = true,
-            										teleport = true,
-            										areas = true}
+											fly = true,
+											creative = true,
+											noclip = true,
+											teleport = true,
+											areas = true}
 
 priv_roles.data.roles["expert_builder"] = {	worldedit = true}
 
