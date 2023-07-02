@@ -1,5 +1,5 @@
 local function load_data()
-	ms = priv_roles.storage
+	local ms = priv_roles.storage
 	local data = {}
 	data.players = minetest.deserialize(ms:get_string("players")) or {} -- Table of what players have what roles
 	data.roles = minetest.deserialize(ms:get_string("roles")) or {} -- Table of roles and associated privs
@@ -9,11 +9,6 @@ end
 local function save_data()
 	local p = minetest.serialize(priv_roles.data.players)
 	priv_roles.storage:set_string("players", p)
-end
-
-local function save_roles()
-	local r = minetest.serialize(priv_roles.data.roles)
-	priv_roles.storage:set_string("roles", r)
 end
 
 -- This really ought to be standard
@@ -51,7 +46,7 @@ priv_roles.calc_privs = function(player, only_role_based)
 		local privs = {}
 		for r, _ in pairs(roles) do
          -- It could be the _extra role; if so ignore it
-         if r == "_extra" then
+         if r == "_extra" then -- luacheck: ignore
          -- It could be a role that was removed; if so remove it
          elseif priv_roles.data.roles[r] == nil then
             priv_roles.data.players[player][r] = nil
@@ -59,9 +54,9 @@ priv_roles.calc_privs = function(player, only_role_based)
 			   local r_privs = table.shallow_copy(priv_roles.data.roles[r])
 			   -- If "_all" is in r_privs, expand it to be all privs excepts ones mentioned in the role
 			   if r_privs["_all"] then
-			      for p, _ in pairs(minetest.registered_privileges) do
-			         if r_privs[p] == nil then
-			            r_privs[p] = true
+			      for priv, _ in pairs(minetest.registered_privileges) do
+			         if r_privs[priv] == nil then
+			            r_privs[priv] = true
 			         end
                end
 	           r_privs["_all"] = nil
@@ -69,9 +64,9 @@ priv_roles.calc_privs = function(player, only_role_based)
 			   -- If "_nothing" is in r_privs, give no privs
 			   if r_privs["_nothing"] then return {} end
 			   -- Calculate the privs table
-			   for p, v in pairs(r_privs) do
+			   for priv, v in pairs(r_privs) do
                if privs[v] ~= false then -- If the priv is removed by a role, other roles can't re-add it
-                  privs[p] = v
+                  privs[priv] = v
                end
             end
          end
@@ -84,9 +79,9 @@ priv_roles.calc_privs = function(player, only_role_based)
       end
 		-- Get rid of all the privs with a value of false
 		local privs_table = {}
-		for p, v in pairs(privs) do
+		for priv, v in pairs(privs) do
 			if v then
-				privs_table[p] = v
+				privs_table[priv] = v
 			end
 		end
 				return privs_table
@@ -112,15 +107,15 @@ function minetest.set_player_privs(player, full_privs)
    local privs = priv_roles.calc_privs(player, true)
    local extra_privs = {}
    -- Figure out what extra priv need to be granted
-   for p, _ in pairs(full_privs) do
-      if privs[p] == nil then
-         extra_privs[p] = true
+   for priv, _ in pairs(full_privs) do
+      if privs[priv] == nil then
+         extra_privs[priv] = true
       end
    end
    -- Figure out what extra privs need to be removed
-   for p, _ in pairs(privs) do
-      if full_privs[p] == nil then
-         extra_privs[p] = false
+   for priv, _ in pairs(privs) do
+      if full_privs[priv] == nil then
+         extra_privs[priv] = false
       end
    end
    -- Update _extra
@@ -153,9 +148,9 @@ priv_roles.grant = function(player, role)
 			p_roles[role] = true
 			priv_roles.data.players[player] = p_roles
          -- Override anything in _extra that conflicts with that role
-         for p, _ in pairs(r) do
-            if priv_roles.data.players[player]["_extra"][p] == false then
-               priv_roles.data.players[player]["_extra"][p] = nil
+         for priv, _ in pairs(r) do
+            if priv_roles.data.players[player]["_extra"][priv] == false then
+               priv_roles.data.players[player]["_extra"][priv] = nil
             end
          end
          -- Cacluate privs
@@ -183,13 +178,13 @@ priv_roles.revoke = function(player, role)
 				-- Remove role from player
 				priv_roles.data.players[player][role] = nil
             -- Override anything in _extra that has a priv in this role
-            for p, _ in pairs(r) do
-               if priv_roles.data.players[player]["_extra"][p] == true then
-                  priv_roles.data.players[player]["_extra"][p] = nil
+            for priv, _ in pairs(r) do
+               if priv_roles.data.players[player]["_extra"][priv] == true then
+                  priv_roles.data.players[player]["_extra"][priv] = nil
                end
             end
 				-- Calc privs
-				p_privs = priv_roles.calc_privs(player)
+				local p_privs = priv_roles.calc_privs(player)
 				priv_roles.set_player_privs(player, p_privs)
 				-- Save data
 				save_data()
